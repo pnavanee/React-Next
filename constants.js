@@ -1,0 +1,1 @@
+export const END_POINT = "https://9705b31160ff.ngrok.io";
