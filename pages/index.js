@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import React, { Fragment,useEffect } from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
-import {connect} from 'react-redux';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import {getProducts} from '../store/action';
 import {END_POINT} from '../constants';
 import {bindActionCreators} from 'redux';
@@ -18,12 +18,13 @@ const deleteProduct = async (pid) => {
     })
 }
 
-const Home = (props) => {
-  // useEffect(() => {
-  //   props.getProducts()
-  // }, [props])
+const Home = () => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(getProducts())
+  }, [dispatch])
 
-     const {products} = props;
+  const products = useSelector(state => state.products);
 
     return (
       <div className="container">
@@ -70,31 +71,4 @@ const Home = (props) => {
     )
 }
 
-// export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
-//   store.dispatch(getProducts())
- 
-// })
-
-Home.getInitialProps = async() => {
-const res = await fetch(`${END_POINT}/products`);
-const products = await res.json();
-return {
-    products : products
-}
-}
-
-
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-     getProducts : bindActionCreators(getProducts, dispatch)
-  }
-}
-
-const mapStateToProps = (state) => {
-  return {
-       products : state.products
-  }
-}
-
-export default connect(null, null)(Home);
+export default Home;
