@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Head from "next/head";
 import Layout from "../../components/layout";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Row, Col } from "react-bootstrap";
+import {House} from 'react-bootstrap-icons';
 import { END_POINT } from "../../constants";
-import { withRouter } from 'next/router'
+import { withRouter } from 'next/router';
+import Alert from '../../components/alert';
 
 class ProductEdit extends React.Component {
   constructor(props){
@@ -11,7 +13,8 @@ class ProductEdit extends React.Component {
       this.state = {
            title : "",
            desc : "",
-           isUpdated : false
+           isUpdated : false,
+           message : ""
       }
   }
   static async getInitialProps({ query }) {
@@ -59,7 +62,10 @@ class ProductEdit extends React.Component {
          },
          body: JSON.stringify(product),
        }).then((r) => {
-         alert("product edited");
+         this.setState({message : "Product updated successfully"});
+         setTimeout(()=>{
+          this.setState({message: ""})
+          },2000)
          console.log(r);
        });
      } else {
@@ -70,7 +76,10 @@ class ProductEdit extends React.Component {
          },
          body: JSON.stringify(product),
        }).then((r) => {
-         alert("product added");
+        this.setState({message : "Product updated successfully"});
+        setTimeout(()=>{
+             this.setState({message: ""})
+        },2000)
          console.log(r);
        });
      }
@@ -79,6 +88,7 @@ class ProductEdit extends React.Component {
 
   render() {
     const { router} = this.props;
+    const {message} = this.state;
     const {query} = router;
     const isEdit = query.edit[0] === "edit";
     const product = this.getProduct();
@@ -89,11 +99,19 @@ class ProductEdit extends React.Component {
         <Head>
           <title>Product Add</title>
         </Head>
+        {message ? <Alert message={message}/> : null}
         <h6 className="back-txt">
           <Link href="/">
-            <a>Back to home</a>
+              <House size={30} className="home-icon"/>
           </Link>
         </h6>
+      <Row>
+        <Col lg="6">
+            <h3>{isEdit ? "Edit" : "Add"} {' '} {"Product"}</h3>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg="6">
         <Form>
           <Form.Group controlId="formGroupTitle">
             <Form.Control as="input" name="title" type="text" value={productTitle} onChange={this.handleChange} placeholder="Title" />
@@ -103,6 +121,8 @@ class ProductEdit extends React.Component {
           </Form.Group>
           <Button variant="primary" onClick={()=>{this.handleSubmit(isEdit)}}>{isEdit ? "Edit" : "Add"}</Button>
         </Form>
+        </Col>
+        </Row>
       </div>
     );
   }

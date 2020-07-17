@@ -38,9 +38,24 @@ img {
     margin-bottom: 8px;
     cursor : pointer;
 }
+.edit-icon {
+   margin-right: 10px;
+}
+.home-icon{
+  cursor: pointer;
+}
+.card-footer{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
 
 .add-prod-btn {
    float : right;
+}
+
+.add-prod-btn span{
+   font-size: 16px;
 }
 
 .back-txt{
