@@ -2,7 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import React, { Fragment,useEffect, useState } from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
-import {connect} from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import {getProducts} from '../store/action';
 import {END_POINT} from '../constants';
 import {bindActionCreators} from 'redux';
@@ -10,6 +10,11 @@ import {Trash, Pencil, PlusSquareFill} from 'react-bootstrap-icons';
 import Alert from '../components/alert';
 import {wrapper} from '../store';
 
+
+export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
+  const action = await getProducts();
+  store.dispatch(action);
+})
 
 
 const Home = (props) => {
@@ -26,12 +31,8 @@ const Home = (props) => {
     })
 }
 
-  // useEffect(() => {
-  //   props.getProducts()
-  // }, [props])
-
-     const {products} = props;
      const [message, setMessage] = useState("")
+     const {products} = useSelector(state => state);
 
     return (
       <div className="container">
@@ -50,7 +51,7 @@ const Home = (props) => {
           </Col>
         </Row>
         <Row>
-          {products.map((prod, i) => {
+          {products && products.map((prod, i) => {
             const prodDesc =
               prod.description.length > 100
                 ? prod.description.substring(0, 100) + "..."
@@ -79,31 +80,12 @@ const Home = (props) => {
     )
 }
 
-// export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
-//   store.dispatch(getProducts())
- 
-// })
+// Home.getInitialProps = async() => {
+// const res = await fetch(`${END_POINT}/products`);
+// const products = await res.json();
+// return {
+//     products : products
+// }
+// }
 
-Home.getInitialProps = async() => {
-const res = await fetch(`${END_POINT}/products`);
-const products = await res.json();
-return {
-    products : products
-}
-}
-
-
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-     getProducts : bindActionCreators(getProducts, dispatch)
-  }
-}
-
-const mapStateToProps = (state) => {
-  return {
-       products : state.products
-  }
-}
-
-export default connect(null, null)(Home);
+export default Home;
