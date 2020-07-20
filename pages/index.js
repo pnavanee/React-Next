@@ -47,7 +47,7 @@ const Home = (props) => {
             return (
               <Col xl="3" key={i}>
                 <Card className="prod-card">
-                <Link href={`/product/${prod.id}`}> 
+                <Link href={`/product-info/${prod.id}`}> 
                   <Card.Body>
                     <Card.Title>{prod.title}</Card.Title>
                     <Card.Text>{prodDesc}</Card.Text>

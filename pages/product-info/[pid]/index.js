@@ -27,7 +27,7 @@ class ProductDetail extends React.Component {
           <h3>Product Detail</h3>
           <p><b>{product.title}</b></p>
           <p><i>{product.description}</i></p>
-          <Link href="/product/[pid]/[demo]" as={`/product/${product.id}/demo`}>Test Route</Link>
+          <Link href="/product-info/[pid]/[demo]" as={`/product-info/${product.id}/demo`}>Test Route</Link>
       </div>
     );
   }
