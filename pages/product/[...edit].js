@@ -6,6 +6,9 @@ import {House} from 'react-bootstrap-icons';
 import { END_POINT } from "../../constants";
 import { withRouter } from 'next/router';
 import Alert from '../../components/alert';
+import {addProduct, editProduct} from '../../store/action';
+import {bindActionCreators} from 'redux';
+import { connect } from "react-redux";
 
 class ProductEdit extends React.Component {
   constructor(props){
@@ -17,7 +20,7 @@ class ProductEdit extends React.Component {
            message : ""
       }
   }
-  static async getInitialProps({ query }) {
+  static async getInitialProps({query}) {
     if(query.edit[0] === "edit") {
     const pid = query.edit[1];
     const res = await fetch(`${END_POINT}/products/${parseInt(pid)}`);
@@ -33,11 +36,10 @@ class ProductEdit extends React.Component {
   }
 
   getProduct = () => {
-    const {isUpdated, title, desc} = this.state;
-    const {product} = this.props;
+    const {title, desc} = this.state;
        return {
-          title : isUpdated && title ? title : product.title,
-          description : isUpdated && desc ? desc : product.description
+          title : title,
+          description : desc
        }
   }
 
@@ -50,44 +52,28 @@ class ProductEdit extends React.Component {
   }
 
   handleSubmit = async (isEdit) => {
-     const { router } = this.props;
+     const { router, addProduct, editProduct } = this.props;
      const product = this.getProduct()
      const {query} = router;
      if (isEdit) {
        const pid = query.edit[1];
-       fetch(`${END_POINT}/products/${pid}`, {
-         method: "PUT",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify(product),
-       }).then((r) => {
-         this.setState({message : "Product updated successfully"});
-         setTimeout(()=>{
-          this.setState({message: ""})
-          },2000)
-         console.log(r);
-       });
+       editProduct(pid, product)
      } else {
-       fetch(`${END_POINT}/products`, {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify(product),
-       }).then((r) => {
-        this.setState({message : "Product updated successfully"});
-        setTimeout(()=>{
-             this.setState({message: ""})
-        },2000)
-         console.log(r);
-       });
+       addProduct(product);
      }
+  }
+
+  componentDidMount(){
+        const {product} = this.props;
+        this.setState({
+            title : product.title,
+            desc : product.description
+        })
   }
 
 
   render() {
-    const { router} = this.props;
+    const { router, alertMessage} = this.props;
     const {message} = this.state;
     const {query} = router;
     const isEdit = query.edit[0] === "edit";
@@ -99,7 +85,7 @@ class ProductEdit extends React.Component {
         <Head>
           <title>Product Add</title>
         </Head>
-        {message ? <Alert message={message}/> : null}
+        {alertMessage ? <Alert message={alertMessage}/> : null} 
         <h6 className="back-txt">
           <Link href="/">
               <House size={30} className="home-icon"/>
@@ -128,4 +114,17 @@ class ProductEdit extends React.Component {
   }
 }
 
-export default withRouter(ProductEdit);
+const mapStateToProps = state => {
+     return {
+          alertMessage : state.alertMessage
+     }
+}
+
+const mapDispatchToProps = dispatch => {
+     return {
+         addProduct : bindActionCreators(addProduct, dispatch),
+         editProduct : bindActionCreators(editProduct, dispatch)
+     }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(ProductEdit));

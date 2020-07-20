@@ -1,7 +1,15 @@
 import {Toast} from 'react-bootstrap';
 import {InfoSquareFill} from 'react-bootstrap-icons';
+import {useDispatch} from 'react-redux';
+
 
 const Alert = (props) => {
+  const dispatch = useDispatch();
+setTimeout(()=> {
+    dispatch({
+      type : "CLEAR_ALERT"
+    })
+}, 1000)
 return <div
     style={{
       position: 'absolute',

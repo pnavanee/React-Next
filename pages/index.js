@@ -2,44 +2,32 @@ import Head from "next/head";
 import Link from "next/link";
 import React, { Fragment,useEffect, useState } from "react";
 import { Card, Row, Col, Button } from "react-bootstrap";
-import {connect, useSelector} from 'react-redux';
-import {getProducts} from '../store/action';
+import {connect, useSelector, useDispatch} from 'react-redux';
+import {getProducts, deleteProduct} from '../store/action';
 import {END_POINT} from '../constants';
-import {bindActionCreators} from 'redux';
 import {Trash, Pencil, PlusSquareFill} from 'react-bootstrap-icons';
 import Alert from '../components/alert';
 import {wrapper} from '../store';
 
 
-export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
-  const action = await getProducts();
-  store.dispatch(action);
-})
 
 
 const Home = (props) => {
 
-  const deleteProduct = async (pid) => {
-    await fetch(`${END_POINT}/products/${pid}`,{
-       method : "DELETE"
-    }).then( r => {
-         setMessage("Product Delete Successfully");
-         window.location.reload(true)
-         setTimeout(()=>{
-            setMessage("");
-         }, 2000)
-    })
-}
-
      const [message, setMessage] = useState("")
-     const {products} = useSelector(state => state);
+     const dispatch = useDispatch();
+     const {products, alertMessage} = useSelector(state => state);
+
+    const removeProduct = async (pid) => {
+         dispatch(deleteProduct(pid));
+    }
 
     return (
       <div className="container">
         <Head>
           <title>Products</title>
         </Head>
-        {message ? <Alert message={message}/> : null}
+        {alertMessage ? <Alert message={alertMessage}/> : null} 
         <Row>
          <Col lg="6">
           <h3>Products</h3>
@@ -69,7 +57,7 @@ const Home = (props) => {
                   <Link href="/product/[...edit]" as={`/product/edit/${prod.id}`}>
                     <Pencil className="edit-icon"/>
                   </Link>
-                    <Trash onClick={()=>{deleteProduct(prod.id)}}/>
+                    <Trash onClick={()=>{removeProduct(prod.id)}}/>
                   </Card.Footer>   
                 </Card>
               </Col>
@@ -79,6 +67,12 @@ const Home = (props) => {
       </div>
     )
 }
+
+export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
+  const action = await getProducts();
+  store.dispatch(action);
+})
+
 
 // Home.getInitialProps = async() => {
 // const res = await fetch(`${END_POINT}/products`);
