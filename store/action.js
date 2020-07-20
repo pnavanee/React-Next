@@ -72,6 +72,10 @@ fetch(`${END_POINT}/products`, {
           type : "ALERT",
           payload : {alertMessage : "Product added successfully"}
      })
+     dispatch({
+         type : "PRODUCT",
+         payload : {product : {}}
+     })
    });
 }
 }

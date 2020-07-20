@@ -61,3 +61,7 @@ img {
 .back-txt{
    float: right;
 }
+
+.product-form .text-error{
+    color:crimson;
+}

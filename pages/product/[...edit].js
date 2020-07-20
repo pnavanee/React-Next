@@ -6,7 +6,7 @@ import {House} from 'react-bootstrap-icons';
 import { END_POINT } from "../../constants";
 import { withRouter } from 'next/router';
 import Alert from '../../components/alert';
-import {addProduct, editProduct} from '../../store/action';
+import {addProduct, editProduct,getProduct} from '../../store/action';
 import {bindActionCreators} from 'redux';
 import { connect } from "react-redux";
 
@@ -17,22 +17,16 @@ class ProductEdit extends React.Component {
            title : "",
            desc : "",
            isUpdated : false,
-           message : ""
+           message : "",
+           errors : {}
       }
   }
-  static async getInitialProps({query}) {
+  static async getInitialProps({query, store}) {
     if(query.edit[0] === "edit") {
     const pid = query.edit[1];
-    const res = await fetch(`${END_POINT}/products/${parseInt(pid)}`);
-    const product = await res.json();
-    return {
-      product: product,
-    };
+    const action = await getProduct(pid);
+    store.dispatch(action);
   }
-    return {product : {
-       title : "",
-       desc : ""
-    }}
   }
 
   getProduct = () => {
@@ -51,16 +45,32 @@ class ProductEdit extends React.Component {
        })
   }
 
+  validateForm = () => {
+      const {title, desc} = this.state;
+      let errors = {};
+      if(!title || (title && !(title.trim()))){
+          errors["title"] = "Product title is required"
+      }
+      if(!desc || (desc && !(desc.trim()))){
+          errors["desc"] = "Product description is required"
+      }
+      this.setState({errors});
+      return errors;
+  }
+
   handleSubmit = async (isEdit) => {
      const { router, addProduct, editProduct } = this.props;
      const product = this.getProduct()
      const {query} = router;
+     const errors = this.validateForm();
+     if(Object.keys(errors).length === 0) {
      if (isEdit) {
        const pid = query.edit[1];
        editProduct(pid, product)
      } else {
        addProduct(product);
      }
+    }
   }
 
   componentDidMount(){
@@ -71,10 +81,20 @@ class ProductEdit extends React.Component {
         })
   }
 
+  componentDidUpdate(prevProps){
+      const {product} = this.props;
+      if(prevProps.product !== product && Object.keys(product).length === 0){
+           this.setState({
+              title : "",
+              desc : ""
+           })
+      }
+  }
+
 
   render() {
     const { router, alertMessage} = this.props;
-    const {message} = this.state;
+    const {errors} = this.state;
     const {query} = router;
     const isEdit = query.edit[0] === "edit";
     const product = this.getProduct();
@@ -98,12 +118,18 @@ class ProductEdit extends React.Component {
       </Row>
       <Row>
         <Col lg="6">
-        <Form>
+        <Form className="product-form"> 
           <Form.Group controlId="formGroupTitle">
-            <Form.Control as="input" name="title" type="text" value={productTitle} onChange={this.handleChange} placeholder="Title" />
+            <Form.Control as="input" name="title" type="text" value={productTitle} onChange={this.handleChange} placeholder="Title" required/>
+            <Form.Text className="text-error">
+                {errors.title}
+            </Form.Text>
           </Form.Group>
           <Form.Group controlId="formGroupDescription">
-            <Form.Control as="input" name="desc" type="text" value={productDesc} onChange={this.handleChange} placeholder="Description" />
+            <Form.Control as="input" name="desc" type="text" value={productDesc} onChange={this.handleChange} placeholder="Description" required/>
+            <Form.Text className="text-error">
+                {errors.desc}
+            </Form.Text>
           </Form.Group>
           <Button variant="primary" onClick={()=>{this.handleSubmit(isEdit)}}>{isEdit ? "Edit" : "Add"}</Button>
         </Form>
@@ -116,7 +142,8 @@ class ProductEdit extends React.Component {
 
 const mapStateToProps = state => {
      return {
-          alertMessage : state.alertMessage
+          alertMessage : state.alertMessage,
+          product : state.product
      }
 }
 
