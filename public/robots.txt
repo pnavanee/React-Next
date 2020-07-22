@@ -1,0 +1,6 @@
+Sitemap: https://react-next.vercel.app/api/products-sitemap
+
+User-agent: *
+Allow: /*
+
+Disallow: /api/*
